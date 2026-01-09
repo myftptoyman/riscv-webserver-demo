@@ -1,0 +1,18 @@
+# Build outputs
+*.o
+*.elf
+*.bin
+*.dump
+
+# Host binaries
+host/slirp_bridge
+host/debug_bridge
+
+# Socket files
+*.sock
+
+# Editor files
+*.swp
+*~
+.DS_Store
+.vscode/
