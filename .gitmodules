@@ -1,3 +1,6 @@
 [submodule "firmware/lwip"]
 	path = firmware/lwip
 	url = https://github.com/lwip-tcpip/lwip.git
+[submodule "riscv-isa-sim"]
+	path = riscv-isa-sim
+	url = https://github.com/myftptoyman/riscv-isa-sim.git
