@@ -7,15 +7,27 @@ LD = $(CROSS)ld
 OBJCOPY = $(CROSS)objcopy
 OBJDUMP = $(CROSS)objdump
 
-# Compiler flags
-CFLAGS = -march=rv64g -mabi=lp64 -mcmodel=medany
-CFLAGS += -O2 -g
-CFLAGS += -ffreestanding -nostdlib -nostartfiles
+# Common flags for assembly and C
+COMMON_FLAGS = -march=rv64g -mabi=lp64 -mcmodel=medany
+COMMON_FLAGS += -O2 -g
+COMMON_FLAGS += -ffreestanding -nostdlib -nostartfiles
+
+# Assembly flags
+ASFLAGS = $(COMMON_FLAGS)
+
+# GCC include path for stdarg.h etc
+GCC_INCLUDE = $(shell $(CC) -print-file-name=include)
+
+# C compiler flags
+CFLAGS = $(COMMON_FLAGS) -nostdinc
 CFLAGS += -Wall -Wextra -Wno-unused-parameter
 CFLAGS += -fno-builtin -fno-common
 CFLAGS += -Iinclude
+CFLAGS += -I$(GCC_INCLUDE)
 CFLAGS += -Ilwip/src/include
+CFLAGS += -Ilwext4/include
 CFLAGS += -Isrc
+CFLAGS += -DCONFIG_USE_DEFAULT_CFG=0
 
 LDFLAGS = -T link.ld -nostdlib -static -Wl,--build-id=none
 
@@ -48,10 +60,34 @@ LWIP_NETIF = \
 
 LWIP_SRCS = $(LWIP_CORE) $(LWIP_IPV4) $(LWIP_NETIF)
 
+# lwext4 sources
+LWEXT4_SRCS = \
+    lwext4/src/ext4.c \
+    lwext4/src/ext4_balloc.c \
+    lwext4/src/ext4_bcache.c \
+    lwext4/src/ext4_bitmap.c \
+    lwext4/src/ext4_blockdev.c \
+    lwext4/src/ext4_block_group.c \
+    lwext4/src/ext4_crc32.c \
+    lwext4/src/ext4_debug.c \
+    lwext4/src/ext4_dir.c \
+    lwext4/src/ext4_dir_idx.c \
+    lwext4/src/ext4_extent.c \
+    lwext4/src/ext4_fs.c \
+    lwext4/src/ext4_hash.c \
+    lwext4/src/ext4_ialloc.c \
+    lwext4/src/ext4_inode.c \
+    lwext4/src/ext4_super.c \
+    lwext4/src/ext4_trans.c \
+    lwext4/src/ext4_xattr.c
+
 # Application sources
 APP_SRCS = \
     src/main.c \
     src/virtio_net.c \
+    src/virtio_blk.c \
+    src/ext4_blockdev_virtio.c \
+    src/fs.c \
     src/sys_arch.c \
     src/timer.c \
     src/heap.c \
@@ -63,7 +99,7 @@ APP_SRCS = \
     src/printf.c
 
 # All sources
-SRCS = src/start.S $(LWIP_SRCS) $(APP_SRCS)
+SRCS = src/start.S $(LWIP_SRCS) $(LWEXT4_SRCS) $(APP_SRCS)
 
 # Object files
 OBJS = $(SRCS:.c=.o)
@@ -89,7 +125,7 @@ $(TARGET).dump: $(TARGET).elf
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 %.o: %.S
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(ASFLAGS) -c -o $@ $<
 
 clean:
 	rm -f $(OBJS) $(TARGET).elf $(TARGET).bin $(TARGET).dump

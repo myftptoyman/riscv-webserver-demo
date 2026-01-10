@@ -23,6 +23,9 @@
 #define VIRTIO_FIFO_BASE    0x10001000
 #define VIRTIO_FIFO_INT_ID  2
 
+#define VIRTIO_BLOCK_BASE   0x10002000
+#define VIRTIO_BLOCK_INT_ID 3
+
 /* Timer frequency (10 MHz in Spike) */
 #define TIMER_FREQ          10000000
 
