@@ -4,3 +4,6 @@
 [submodule "riscv-isa-sim"]
 	path = riscv-isa-sim
 	url = https://github.com/myftptoyman/riscv-isa-sim.git
+[submodule "firmware/lwext4"]
+	path = firmware/lwext4
+	url = https://github.com/gkostka/lwext4.git
